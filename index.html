@@ -13,6 +13,8 @@
             --text-white: #ffffff;
             --money-green: #00ff9d;
             --bg-color: #2b2e36; 
+            --danger-red: #ff4d4d;
+            --edit-blue: #00bfff;
         }
         body {
             margin: 0; padding: 0;
@@ -86,7 +88,15 @@
         .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); } .history-header h3 { margin: 0; font-size: 1em; text-transform: uppercase; color: #fff; }
         .btn-clear { background: transparent; border: 1px solid rgba(255, 77, 77, 0.5); color: #ff4d4d; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.75em; }
         .table-container { max-height: 250px; overflow-y: auto; border-radius: 10px; background: rgba(0,0,0,0.2); } .table-container::-webkit-scrollbar { width: 4px; } .table-container::-webkit-scrollbar-thumb { background: var(--primary-orange); border-radius: 2px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.8em; } th { text-align: left; padding: 10px 8px; background: rgba(0,0,0,0.6); position: sticky; top: 0; color: var(--primary-orange); } td { text-align: left; padding: 10px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #ddd; } .td-money { color: var(--money-green); font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8em; } th { text-align: left; padding: 10px 8px; background: rgba(0,0,0,0.6); position: sticky; top: 0; color: var(--primary-orange); } td { text-align: left; padding: 10px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #ddd; vertical-align: middle; } .td-money { color: var(--money-green); font-weight: bold; }
+        
+        /* КНОПКИ ДЕЙСТВИЙ */
+        .actions-cell { display: flex; gap: 8px; justify-content: flex-end; }
+        .action-btn { border: none; padding: 6px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .btn-edit { background: rgba(0, 191, 255, 0.15); color: var(--edit-blue); }
+        .btn-del { background: rgba(255, 77, 77, 0.15); color: var(--danger-red); }
+        .action-btn:hover { transform: scale(1.1); filter: brightness(1.2); }
+
     </style>
 </head>
 <body>
@@ -132,8 +142,18 @@
         <div class="history-card">
             <div class="history-header"><h3>История (200 зап.)</h3><button class="btn-clear" onclick="clearHistory()">СБРОС</button></div>
             <div class="table-container">
-                <!-- Заголовок таблицы изменен на ОДОМЕТР -->
-                <table><thead><tr><th>Одометр</th><th>КМ</th><th>Л</th><th>Руб</th><th>Расх.</th></tr></thead><tbody id="history-body"></tbody></table>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Одометр</th>
+                            <th>КМ</th>
+                            <th>Л</th>
+                            <th>Руб</th>
+                            <th style="text-align:right;">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body"></tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -145,8 +165,6 @@
         window.onload=function(){
             renderHistoryTable();
             if(historyData.length>0){updateGlobalStats()}
-            
-            // Автоматически подставляем последний одометр в поле "Старт"
             if(historyData.length>0 && historyData[0].currOdo){
                 document.getElementById('odo-prev').value = historyData[0].currOdo;
             }
@@ -159,8 +177,8 @@
             document.getElementById("error-box").style.display="none";
             if("odo"===e){
                 t.classList.add("active"); l.classList.remove("active"); n.classList.remove("hidden"); d.classList.add("hidden");
-                // При переключении на Одометр, сразу подставляем старт из истории
-                if(historyData.length>0 && historyData[0].currOdo) {
+                // Подставляем старт, если есть история, но только если поле пустое
+                if(historyData.length>0 && historyData[0].currOdo && document.getElementById('odo-prev').value === "") {
                      document.getElementById('odo-prev').value = historyData[0].currOdo;
                 }
             } else {
@@ -176,8 +194,6 @@
             
             let distance=0;
             let currentOdoValue=0;
-            
-            // Получаем последний известный пробег из истории (или 0)
             let lastOdo = historyData.length > 0 ? historyData[0].currOdo : 0;
 
             if("odo"===calculationMode){
@@ -186,13 +202,11 @@
                 if(isNaN(odoPrev)||isNaN(odoCurr)) return void showError("Укажите одометр");
                 if(odoCurr<=odoPrev) return void showError("Финиш > Старта");
                 distance = odoCurr - odoPrev;
-                currentOdoValue = odoCurr; // В этом режиме новый одометр это то, что ввели в Финиш
+                currentOdoValue = odoCurr;
             } else {
-                // Режим ПРОБЕГ (Trip)
                 const distDirect=parseFloat(document.getElementById("dist-direct").value);
                 if(isNaN(distDirect)||distDirect<=0) return void showError("Введите пробег");
                 distance = distDirect;
-                // АВТОМАТИЧЕСКОЕ ПРИБАВЛЕНИЕ: Старый одометр + введенный пробег
                 currentOdoValue = lastOdo + distance;
             }
 
@@ -219,7 +233,7 @@
                 price:price,
                 totalCost:totalCost,
                 cons:consumption,
-                currOdo:currentOdoValue // Сохраняем рассчитанный одометр
+                currOdo:currentOdoValue
             };
 
             historyData.unshift(record);
@@ -227,8 +241,10 @@
 
             saveAndRender();
             
-            // После расчета обновляем поле Старт для удобства
+            // После расчета обновляем старт и очищаем финиш
             document.getElementById('odo-prev').value = currentOdoValue;
+            document.getElementById('odo-curr').value = "";
+            document.getElementById('dist-direct').value = "";
         }
 
         function renderHistoryTable(){
@@ -243,19 +259,62 @@
 
             historyData.forEach(t=>{
                 const costDisplay=t.totalCost?Math.round(t.totalCost):"-";
-                // Вместо даты (t.date) показываем Одометр (t.currOdo)
                 const odoDisplay = t.currOdo ? t.currOdo : '-';
                 
                 const row=`<tr>
-                    <td style="color:#fff; font-weight:bold;">${odoDisplay}</td>
+                    <td style="color:#fff; font-weight:bold; font-size:0.9em;">${odoDisplay}</td>
                     <td>${t.dist.toFixed(0)}</td>
                     <td>${t.lit.toFixed(1)}</td>
                     <td class="td-money">${costDisplay}</td>
-                    <td>${t.cons.toFixed(1)}</td>
+                    <td>
+                        <div class="actions-cell">
+                            <button class="action-btn btn-edit" onclick="editItem(${t.id})" title="Изменить">✏️</button>
+                            <button class="action-btn btn-del" onclick="deleteItem(${t.id})" title="Удалить">🗑️</button>
+                        </div>
+                    </td>
                 </tr>`;
                 tbody.insertAdjacentHTML("beforeend",row);
             });
             updateGlobalStats();
+        }
+
+        function deleteItem(id) {
+            if(confirm("Удалить эту запись?")) {
+                historyData = historyData.filter(item => item.id !== id);
+                saveAndRender();
+                // Если удалили самую первую запись, нужно обновить поле Старт
+                if(historyData.length > 0 && historyData[0].currOdo) {
+                     document.getElementById('odo-prev').value = historyData[0].currOdo;
+                }
+            }
+        }
+
+        function editItem(id) {
+            if(confirm("Изменить запись? Данные будут загружены в форму, а старая запись удалена.")) {
+                const item = historyData.find(i => i.id === id);
+                if(item) {
+                    // Загружаем данные в поля
+                    if (item.currOdo > 0) {
+                        setMode('odo');
+                        document.getElementById('odo-curr').value = item.currOdo;
+                        // Вычисляем, какой был старт: Финиш - Пробег
+                        document.getElementById('odo-prev').value = item.currOdo - item.dist;
+                    } else {
+                        setMode('dist');
+                        document.getElementById('dist-direct').value = item.dist;
+                    }
+                    
+                    document.getElementById('fuel-liters').value = item.lit;
+                    document.getElementById('price-liter').value = item.price;
+
+                    // Удаляем запись из таблицы
+                    historyData = historyData.filter(i => i.id !== id);
+                    saveAndRender();
+
+                    // Прокручиваем наверх к калькулятору
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }
         }
 
         function updateGlobalStats(){

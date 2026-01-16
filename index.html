@@ -29,7 +29,6 @@
         /* ПК ВЕРСИЯ */
         @media (min-width: 769px) {
             body {
-                /* ФОТО ДОЛЖНО ЛЕЖАТЬ РЯДОМ С ФАЙЛОМ */
                 background-image: url('foto.jpg'); 
                 background-size: cover;
                 background-position: center;
@@ -87,21 +86,32 @@
         .error-msg { color: #ff4d4d; background: rgba(255, 77, 77, 0.1); padding: 10px; border-radius: 8px; text-align: center; margin-top: 15px; display: none; }
         .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); } .history-header h3 { margin: 0; font-size: 1em; text-transform: uppercase; color: #fff; }
         .btn-clear { background: transparent; border: 1px solid rgba(255, 77, 77, 0.5); color: #ff4d4d; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.75em; }
-        .table-container { max-height: 250px; overflow-y: auto; border-radius: 10px; background: rgba(0,0,0,0.2); } .table-container::-webkit-scrollbar { width: 4px; } .table-container::-webkit-scrollbar-thumb { background: var(--primary-orange); border-radius: 2px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.8em; } th { text-align: left; padding: 10px 8px; background: rgba(0,0,0,0.6); position: sticky; top: 0; color: var(--primary-orange); } td { text-align: left; padding: 10px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #ddd; vertical-align: middle; } .td-money { color: var(--money-green); font-weight: bold; }
         
-        /* КНОПКИ ДЕЙСТВИЙ */
-        .actions-cell { display: flex; gap: 8px; justify-content: flex-end; }
-        .action-btn { border: none; padding: 6px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .btn-edit { background: rgba(0, 191, 255, 0.15); color: var(--edit-blue); }
-        .btn-del { background: rgba(255, 77, 77, 0.15); color: var(--danger-red); }
-        .action-btn:hover { transform: scale(1.1); filter: brightness(1.2); }
+        .table-container { max-height: 350px; overflow-y: auto; border-radius: 10px; background: rgba(0,0,0,0.2); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.75em; } /* Шрифт чуть меньше */
+        th { text-align: left; padding: 12px 6px; background: rgba(0,0,0,0.6); position: sticky; top: 0; color: var(--primary-orange); text-transform: uppercase; }
+        td { text-align: left; padding: 12px 6px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #ddd; vertical-align: middle; }
+        .td-money { color: var(--money-green); font-weight: bold; }
+        
+        /* Стили для кликабельной строки */
+        tr.data-row { cursor: pointer; transition: background 0.2s; }
+        tr.data-row:active { background: rgba(255,255,255,0.1); }
+        
+        /* Скрытая строка с кнопками */
+        .actions-row { display: none; background: rgba(0,0,0,0.3); }
+        .actions-row.show { display: table-row; animation: fadeIn 0.3s; }
+        .actions-wrapper { display: flex; gap: 10px; padding: 10px; justify-content: center; }
+        .action-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 1.1em; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-edit { background: rgba(0, 191, 255, 0.2); color: var(--edit-blue); border: 1px solid rgba(0, 191, 255, 0.3); }
+        .btn-del { background: rgba(255, 77, 77, 0.2); color: var(--danger-red); border: 1px solid rgba(255, 77, 77, 0.3); }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .hint-text { font-size: 0.7em; color: #666; text-align: center; margin-bottom: 10px; font-style: italic; }
 
     </style>
 </head>
 <body>
     <div class="mobile-header-image">
-        <!-- КАРТИНКА ДЛЯ ТЕЛЕФОНА -->
         <img src="foto.jpg" alt="GAZ Header">
     </div>
     <div class="main-container">
@@ -140,16 +150,17 @@
             </div>
         </div>
         <div class="history-card">
-            <div class="history-header"><h3>История (200 зап.)</h3><button class="btn-clear" onclick="clearHistory()">СБРОС</button></div>
+            <div class="history-header"><h3>История</h3><button class="btn-clear" onclick="clearHistory()">СБРОС</button></div>
+            <div class="hint-text">Нажми на запись, чтобы изменить или удалить</div>
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th>Одометр</th>
+                            <th>Одо</th>
                             <th>КМ</th>
                             <th>Л</th>
                             <th>Руб</th>
-                            <th style="text-align:right;">Действия</th>
+                            <th>100км</th>
                         </tr>
                     </thead>
                     <tbody id="history-body"></tbody>
@@ -177,7 +188,6 @@
             document.getElementById("error-box").style.display="none";
             if("odo"===e){
                 t.classList.add("active"); l.classList.remove("active"); n.classList.remove("hidden"); d.classList.add("hidden");
-                // Подставляем старт, если есть история, но только если поле пустое
                 if(historyData.length>0 && historyData[0].currOdo && document.getElementById('odo-prev').value === "") {
                      document.getElementById('odo-prev').value = historyData[0].currOdo;
                 }
@@ -241,7 +251,6 @@
 
             saveAndRender();
             
-            // После расчета обновляем старт и очищаем финиш
             document.getElementById('odo-prev').value = currentOdoValue;
             document.getElementById('odo-curr').value = "";
             document.getElementById('dist-direct').value = "";
@@ -261,28 +270,45 @@
                 const costDisplay=t.totalCost?Math.round(t.totalCost):"-";
                 const odoDisplay = t.currOdo ? t.currOdo : '-';
                 
-                const row=`<tr>
-                    <td style="color:#fff; font-weight:bold; font-size:0.9em;">${odoDisplay}</td>
+                // СТРОКА ДАННЫХ
+                const rowData=`<tr class="data-row" onclick="toggleActions(${t.id})">
+                    <td style="color:#fff; font-weight:bold;">${odoDisplay}</td>
                     <td>${t.dist.toFixed(0)}</td>
                     <td>${t.lit.toFixed(1)}</td>
                     <td class="td-money">${costDisplay}</td>
-                    <td>
-                        <div class="actions-cell">
-                            <button class="action-btn btn-edit" onclick="editItem(${t.id})" title="Изменить">✏️</button>
-                            <button class="action-btn btn-del" onclick="deleteItem(${t.id})" title="Удалить">🗑️</button>
+                    <td style="color:#fff; font-weight:bold;">${t.cons.toFixed(1)}</td>
+                </tr>`;
+                
+                // СКРЫТАЯ СТРОКА С КНОПКАМИ
+                const rowActions=`<tr class="actions-row" id="act-${t.id}">
+                    <td colspan="5">
+                        <div class="actions-wrapper">
+                            <button class="action-btn btn-edit" onclick="editItem(${t.id})">✏️ Изменить</button>
+                            <button class="action-btn btn-del" onclick="deleteItem(${t.id})">🗑️ Удалить</button>
                         </div>
                     </td>
                 </tr>`;
-                tbody.insertAdjacentHTML("beforeend",row);
+                
+                tbody.insertAdjacentHTML("beforeend", rowData + rowActions);
             });
             updateGlobalStats();
+        }
+
+        function toggleActions(id) {
+            // Закрываем все открытые, кроме текущего
+            document.querySelectorAll('.actions-row').forEach(row => {
+                if(row.id !== 'act-' + id) row.classList.remove('show');
+            });
+            
+            // Тогглим текущий
+            const row = document.getElementById('act-' + id);
+            if(row) row.classList.toggle('show');
         }
 
         function deleteItem(id) {
             if(confirm("Удалить эту запись?")) {
                 historyData = historyData.filter(item => item.id !== id);
                 saveAndRender();
-                // Если удалили самую первую запись, нужно обновить поле Старт
                 if(historyData.length > 0 && historyData[0].currOdo) {
                      document.getElementById('odo-prev').value = historyData[0].currOdo;
                 }
@@ -290,14 +316,12 @@
         }
 
         function editItem(id) {
-            if(confirm("Изменить запись? Данные будут загружены в форму, а старая запись удалена.")) {
+            if(confirm("Загрузить данные для изменения? Старая запись будет удалена.")) {
                 const item = historyData.find(i => i.id === id);
                 if(item) {
-                    // Загружаем данные в поля
                     if (item.currOdo > 0) {
                         setMode('odo');
                         document.getElementById('odo-curr').value = item.currOdo;
-                        // Вычисляем, какой был старт: Финиш - Пробег
                         document.getElementById('odo-prev').value = item.currOdo - item.dist;
                     } else {
                         setMode('dist');
@@ -307,11 +331,8 @@
                     document.getElementById('fuel-liters').value = item.lit;
                     document.getElementById('price-liter').value = item.price;
 
-                    // Удаляем запись из таблицы
                     historyData = historyData.filter(i => i.id !== id);
                     saveAndRender();
-
-                    // Прокручиваем наверх к калькулятору
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
             }

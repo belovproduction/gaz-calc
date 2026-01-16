@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <!-- Подключаем библиотеку VK Bridge -->
+<script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+
+<script>
+  // Инициализируем приложение
+  vkBridge.send('VKWebAppInit');
+</script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GAZ Smart Log</title>
@@ -381,3 +389,4 @@
     </script>
 </body>
 </html>
+

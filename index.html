@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GAZ Calculator</title>
+    <title>GAZ Smart Log</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap');
         :root {
@@ -27,7 +27,7 @@
         /* ПК ВЕРСИЯ */
         @media (min-width: 769px) {
             body {
-                /* ССЫЛКА НА ВАШ ФАЙЛ FOTO.JPG */
+                /* ФОТО ДОЛЖНО ЛЕЖАТЬ РЯДОМ С ФАЙЛОМ */
                 background-image: url('foto.jpg'); 
                 background-size: cover;
                 background-position: center;
@@ -132,20 +132,172 @@
         <div class="history-card">
             <div class="history-header"><h3>История (200 зап.)</h3><button class="btn-clear" onclick="clearHistory()">СБРОС</button></div>
             <div class="table-container">
-                <table><thead><tr><th>Дата</th><th>КМ</th><th>Л</th><th>Руб</th><th>Расх.</th></tr></thead><tbody id="history-body"></tbody></table>
+                <!-- Заголовок таблицы изменен на ОДОМЕТР -->
+                <table><thead><tr><th>Одометр</th><th>КМ</th><th>Л</th><th>Руб</th><th>Расх.</th></tr></thead><tbody id="history-body"></tbody></table>
             </div>
         </div>
     </div>
     <script>
-        let calculationMode='odo';let historyData=JSON.parse(localStorage.getItem('gazFuelHistory'))||[];let lastPrice=localStorage.getItem('lastFuelPrice');
-        window.onload=function(){renderHistoryTable();if(historyData.length>0){updateGlobalStats()}if(historyData.length>0&&historyData[0].currOdo){document.getElementById('odo-prev').value=historyData[0].currOdo}if(lastPrice){document.getElementById('price-liter').value=lastPrice}};
-        function setMode(e){calculationMode=e;const t=document.getElementById("btn-mode-odo"),l=document.getElementById("btn-mode-dist"),n=document.getElementById("mode-odo-container"),d=document.getElementById("mode-dist-container");document.getElementById("error-box").style.display="none","odo"===e?(t.classList.add("active"),l.classList.remove("active"),n.classList.remove("hidden"),d.classList.add("hidden")):(l.classList.add("active"),t.classList.remove("active"),d.classList.remove("hidden"),n.classList.add("hidden"))}
-        function calculateFuel(){const e=parseFloat(document.getElementById("fuel-liters").value),t=parseFloat(document.getElementById("price-liter").value);document.getElementById("error-box").style.display="none";let l=0,n=null;if("odo"===calculationMode){const e=parseFloat(document.getElementById("odo-prev").value),t=parseFloat(document.getElementById("odo-curr").value);if(isNaN(e)||isNaN(t))return void showError("Укажите одометр");if(t<=e)return void showError("Финиш > Старта");l=t-e,n=t}else{const e=parseFloat(document.getElementById("dist-direct").value);if(isNaN(e)||e<=0)return void showError("Введите пробег");l=e}if(isNaN(e)||e<=0)return void showError("Введите литры");if(isNaN(t)||t<=0)return void showError("Введите цену");const d=e/l*100,a=e*t,o=a/l;document.getElementById("res-distance").innerText=l.toFixed(1)+" км",document.getElementById("res-consumption").innerText=d.toFixed(2)+" л/100",document.getElementById("res-total-cost").innerText=Math.round(a)+" ₽",document.getElementById("res-km-cost").innerText=o.toFixed(2)+" ₽",document.getElementById("results-box").style.display="block",localStorage.setItem("lastFuelPrice",t);const r={id:Date.now(),date:new Date().toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit"}),dist:l,lit:e,price:t,totalCost:a,cons:d,currOdo:n};historyData.unshift(r),historyData.length>200&&historyData.pop(),saveAndRender()}
-        function renderHistoryTable(){const e=document.getElementById("history-body");if(e.innerHTML="",0===historyData.length)return e.innerHTML='<tr><td colspan="5" style="text-align:center; color:#666; padding: 20px;">Нет данных</td></tr>',void(document.getElementById("global-stats-box").style.display="none");historyData.forEach(t=>{const l=t.totalCost?Math.round(t.totalCost):"-",n=`<tr><td>${t.date}</td><td>${t.dist.toFixed(0)}</td><td>${t.lit.toFixed(1)}</td><td class="td-money">${l}</td><td style="color:#fff; font-weight:bold;">${t.cons.toFixed(1)}</td></tr>`;e.insertAdjacentHTML("beforeend",n)}),updateGlobalStats()}
-        function updateGlobalStats(){if(0===historyData.length)return;document.getElementById("global-stats-box").style.display="block";let e=0,t=0,l=0;historyData.forEach(n=>{e+=n.dist,t+=n.lit,n.totalCost?l+=n.totalCost:n.price&&n.lit&&(l+=n.price*n.lit)});if(e>0){const n=t/e*100;document.getElementById("global-avg").innerText=n.toFixed(2)+" л/100км";const d=l/e;document.getElementById("global-cost-avg").innerText="Средняя цена 1 км: "+d.toFixed(2)+" ₽"}}
-        function saveAndRender(){localStorage.setItem("gazFuelHistory",JSON.stringify(historyData)),renderHistoryTable()}
-        function clearHistory(){confirm("Удалить всю историю?")&&(historyData=[],saveAndRender(),document.getElementById("results-box").style.display="none",document.getElementById("global-stats-box").style.display="none",document.getElementById("odo-prev").value="",document.getElementById("odo-curr").value="",document.getElementById("dist-direct").value="",document.getElementById("fuel-liters").value="")}
-        function showError(e){const t=document.getElementById("error-box");t.innerText=e,t.style.display="block"}
+        let calculationMode='odo';
+        let historyData=JSON.parse(localStorage.getItem('gazFuelHistory'))||[];
+        let lastPrice=localStorage.getItem('lastFuelPrice');
+
+        window.onload=function(){
+            renderHistoryTable();
+            if(historyData.length>0){updateGlobalStats()}
+            
+            // Автоматически подставляем последний одометр в поле "Старт"
+            if(historyData.length>0 && historyData[0].currOdo){
+                document.getElementById('odo-prev').value = historyData[0].currOdo;
+            }
+            if(lastPrice){document.getElementById('price-liter').value=lastPrice}
+        };
+
+        function setMode(e){
+            calculationMode=e;
+            const t=document.getElementById("btn-mode-odo"),l=document.getElementById("btn-mode-dist"),n=document.getElementById("mode-odo-container"),d=document.getElementById("mode-dist-container");
+            document.getElementById("error-box").style.display="none";
+            if("odo"===e){
+                t.classList.add("active"); l.classList.remove("active"); n.classList.remove("hidden"); d.classList.add("hidden");
+                // При переключении на Одометр, сразу подставляем старт из истории
+                if(historyData.length>0 && historyData[0].currOdo) {
+                     document.getElementById('odo-prev').value = historyData[0].currOdo;
+                }
+            } else {
+                l.classList.add("active"); t.classList.remove("active"); d.classList.remove("hidden"); n.classList.add("hidden");
+            }
+        }
+
+        function calculateFuel(){
+            const liters=parseFloat(document.getElementById("fuel-liters").value);
+            const price=parseFloat(document.getElementById("price-liter").value);
+            const errorBox=document.getElementById("error-box");
+            errorBox.style.display="none";
+            
+            let distance=0;
+            let currentOdoValue=0;
+            
+            // Получаем последний известный пробег из истории (или 0)
+            let lastOdo = historyData.length > 0 ? historyData[0].currOdo : 0;
+
+            if("odo"===calculationMode){
+                const odoPrev=parseFloat(document.getElementById("odo-prev").value);
+                const odoCurr=parseFloat(document.getElementById("odo-curr").value);
+                if(isNaN(odoPrev)||isNaN(odoCurr)) return void showError("Укажите одометр");
+                if(odoCurr<=odoPrev) return void showError("Финиш > Старта");
+                distance = odoCurr - odoPrev;
+                currentOdoValue = odoCurr; // В этом режиме новый одометр это то, что ввели в Финиш
+            } else {
+                // Режим ПРОБЕГ (Trip)
+                const distDirect=parseFloat(document.getElementById("dist-direct").value);
+                if(isNaN(distDirect)||distDirect<=0) return void showError("Введите пробег");
+                distance = distDirect;
+                // АВТОМАТИЧЕСКОЕ ПРИБАВЛЕНИЕ: Старый одометр + введенный пробег
+                currentOdoValue = lastOdo + distance;
+            }
+
+            if(isNaN(liters)||liters<=0) return void showError("Введите литры");
+            if(isNaN(price)||price<=0) return void showError("Введите цену");
+
+            const consumption=liters/distance*100;
+            const totalCost=liters*price;
+            const costPerKm=totalCost/distance;
+
+            document.getElementById("res-distance").innerText=distance.toFixed(1)+" км";
+            document.getElementById("res-consumption").innerText=consumption.toFixed(2)+" л/100";
+            document.getElementById("res-total-cost").innerText=Math.round(totalCost)+" ₽";
+            document.getElementById("res-km-cost").innerText=costPerKm.toFixed(2)+" ₽";
+            document.getElementById("results-box").style.display="block";
+
+            localStorage.setItem("lastFuelPrice", price);
+
+            const record={
+                id:Date.now(),
+                date:new Date().toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit"}),
+                dist:distance,
+                lit:liters,
+                price:price,
+                totalCost:totalCost,
+                cons:consumption,
+                currOdo:currentOdoValue // Сохраняем рассчитанный одометр
+            };
+
+            historyData.unshift(record);
+            if(historyData.length>200) historyData.pop();
+
+            saveAndRender();
+            
+            // После расчета обновляем поле Старт для удобства
+            document.getElementById('odo-prev').value = currentOdoValue;
+        }
+
+        function renderHistoryTable(){
+            const tbody=document.getElementById("history-body");
+            tbody.innerHTML="";
+            
+            if(historyData.length===0){
+                tbody.innerHTML='<tr><td colspan="5" style="text-align:center; color:#666; padding: 20px;">Нет данных</td></tr>';
+                document.getElementById("global-stats-box").style.display="none";
+                return;
+            }
+
+            historyData.forEach(t=>{
+                const costDisplay=t.totalCost?Math.round(t.totalCost):"-";
+                // Вместо даты (t.date) показываем Одометр (t.currOdo)
+                const odoDisplay = t.currOdo ? t.currOdo : '-';
+                
+                const row=`<tr>
+                    <td style="color:#fff; font-weight:bold;">${odoDisplay}</td>
+                    <td>${t.dist.toFixed(0)}</td>
+                    <td>${t.lit.toFixed(1)}</td>
+                    <td class="td-money">${costDisplay}</td>
+                    <td>${t.cons.toFixed(1)}</td>
+                </tr>`;
+                tbody.insertAdjacentHTML("beforeend",row);
+            });
+            updateGlobalStats();
+        }
+
+        function updateGlobalStats(){
+            if(0===historyData.length)return;
+            document.getElementById("global-stats-box").style.display="block";
+            let dist=0,lit=0,money=0;
+            historyData.forEach(n=>{
+                dist+=n.dist;
+                lit+=n.lit;
+                n.totalCost ? money+=n.totalCost : n.price&&n.lit&&(money+=n.price*n.lit)
+            });
+            if(dist>0){
+                const avg=lit/dist*100;
+                document.getElementById("global-avg").innerText=avg.toFixed(2)+" л/100км";
+                const costKm=money/dist;
+                document.getElementById("global-cost-avg").innerText="Средняя цена 1 км: "+costKm.toFixed(2)+" ₽";
+            }
+        }
+
+        function saveAndRender(){
+            localStorage.setItem("gazFuelHistory",JSON.stringify(historyData));
+            renderHistoryTable();
+        }
+
+        function clearHistory(){
+            if(confirm("Удалить всю историю?")){
+                historyData=[];
+                saveAndRender();
+                document.getElementById("results-box").style.display="none";
+                document.getElementById("global-stats-box").style.display="none";
+                document.getElementById("odo-prev").value="";
+                document.getElementById("odo-curr").value="";
+                document.getElementById("dist-direct").value="";
+                document.getElementById("fuel-liters").value="";
+            }
+        }
+
+        function showError(e){
+            const t=document.getElementById("error-box");
+            t.innerText=e;
+            t.style.display="block";
+        }
     </script>
 </body>
 </html>

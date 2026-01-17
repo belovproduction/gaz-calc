@@ -49,33 +49,18 @@
             }
             .mobile-header-image { display: none; }
         }
-        
-        /* МОБИЛЬНАЯ ВЕРСИЯ - ИЗМЕНЕНО */
+        /* МОБИЛЬНАЯ ВЕРСИЯ */
         @media (max-width: 768px) {
             .mobile-header-image {
-                display: block; 
-                width: 100%; 
-                height: 70vh; /* Увеличили высоту до 70% экрана, чтобы влезло тело целиком */
-                position: relative; 
-                z-index: 1;
+                display: block; width: 100%; height: auto; position: relative; z-index: 1;
             }
             .mobile-header-image img {
-                width: 100%; 
-                height: 100%; 
-                display: block;
-                object-fit: cover; /* Картинка заполняет блок, сохраняя пропорции */
-                object-position: top center; /* Приклеиваем к верху (голова на месте), низ тянется */
-                mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-                -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+                width: 100%; height: auto; display: block;
+                mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+                -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
             }
-            .main-container { 
-                margin-top: -60px; /* Чуть сильнее наезжаем блоком на картинку */
-                position: relative; 
-                z-index: 2; 
-                padding: 0 15px; 
-            }
+            .main-container { margin-top: -30px; position: relative; z-index: 2; padding: 0 15px; }
         }
-
         .main-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 20px; margin-bottom: 50px; }
         .calculator-card, .history-card {
             background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);

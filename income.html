@@ -42,6 +42,17 @@
             width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 20px;
         }
 
+        /* --- СТИЛЬ ДЛЯ ВЕРХНЕЙ КАРТИНКИ --- */
+        .top-banner {
+            width: 100%;
+            height: auto;
+            border-radius: 20px; /* Закругленные углы как у карточек */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); /* Тень */
+            margin-bottom: 5px; /* Отступ снизу */
+            object-fit: cover;
+            display: block;
+        }
+
         /* --- НАВИГАЦИЯ ПО РЕЙСАМ --- */
         .trips-container {
             display: flex;
@@ -57,8 +68,6 @@
             padding-bottom: 5px;
             flex: 1;
             scrollbar-width: none; 
-            /* Изменили направление, чтобы элементы шли слева направо стандартно, 
-               но так как мы добавляем новые в начало массива, они будут слева */
         }
         .trips-scroll::-webkit-scrollbar { display: none; }
 
@@ -75,7 +84,6 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            /* Чтобы они не сжимались */
             flex-shrink: 0; 
         }
 
@@ -260,8 +268,12 @@
 
     <div class="container">
         
+        <!-- ========================================== -->
+        <!-- ВСТАВЛЕННАЯ КАРТИНКА FOTO3.JPG -->
+        <img src="foto3.jpg" alt="Баннер" class="top-banner">
+        <!-- ========================================== -->
+
         <!-- Верхняя панель с рейсами -->
-        <!-- ТЕПЕРЬ КНОПКА ПЛЮС СЛЕВА, ЧТОБЫ УДОБНЕЕ ДОБАВЛЯТЬ В НАЧАЛО -->
         <div class="trips-container">
             <button class="add-trip-btn" onclick="createNewTrip()">+</button>
             <div class="trips-scroll" id="trips-list">

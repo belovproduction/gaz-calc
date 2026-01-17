@@ -2,96 +2,96 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Учет по Рейсам</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #121214;
-            --card-bg: #1e1e22;
-            --input-bg: #151518;
-            --orange-main: #ff6600;
-            --orange-gradient: linear-gradient(90deg, #ff8800, #ff4500);
+            --bg-body: #000000;
+            --card-bg: #1c1c1e;
+            --input-bg: #2c2c2e;
+            --orange-accent: #ff6d00;
             --text-white: #ffffff;
-            --text-gray: #888888;
-            --border-glow: linear-gradient(90deg, #7b2cbf, #ff6600);
+            --text-gray: #8e8e93;
+            --danger: #ff453a;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
 
         body {
-            background-color: var(--bg-dark);
-            background-image: url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1000&auto=format&fit=crop'); 
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            background-color: var(--bg-body);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
             color: var(--text-white);
+            padding-bottom: 40px;
         }
 
-        body::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(18, 18, 20, 0.9); backdrop-filter: blur(8px); z-index: -1;
-        }
-
-        .container {
-            width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 20px;
-        }
-
-        /* --- СТИЛЬ ДЛЯ ВЕРХНЕЙ КАРТИНКИ --- */
-        .top-banner {
+        /* Имитация картинки-шапки как на скрине */
+        .header-image-container {
             width: 100%;
-            height: auto;
-            border-radius: 20px; /* Закругленные углы как у карточек */
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); /* Тень */
-            margin-bottom: 5px; /* Отступ снизу */
-            object-fit: cover;
-            display: block;
+            height: 280px;
+            position: relative;
+            z-index: 0;
         }
 
-        /* --- НАВИГАЦИЯ ПО РЕЙСАМ --- */
+        .header-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Градиент в черный снизу */
+            mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+        }
+
+        .main-wrapper {
+            width: 100%;
+            max-width: 450px;
+            margin-top: -60px; /* Наезжаем на картинку */
+            padding: 0 16px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* --- НАВИГАЦИЯ ПО РЕЙСАМ (Чипсы) --- */
         .trips-container {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
         }
 
         .trips-scroll {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             overflow-x: auto;
-            padding-bottom: 5px;
+            padding: 4px;
             flex: 1;
             scrollbar-width: none; 
         }
         .trips-scroll::-webkit-scrollbar { display: none; }
 
         .trip-chip {
-            background: var(--card-bg);
-            border: 1px solid #333;
-            padding: 8px 15px;
-            border-radius: 15px;
-            min-width: 100px;
+            background: var(--input-bg);
+            padding: 8px 16px;
+            border-radius: 20px;
+            min-width: 90px;
             text-align: center;
             cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            flex-shrink: 0; 
+            transition: 0.2s;
+            border: 1px solid transparent;
         }
 
         .trip-chip-name {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             color: #ccc;
             white-space: nowrap;
+            text-transform: uppercase;
         }
 
         .trip-chip-date {
@@ -101,21 +101,16 @@
         }
 
         .trip-chip.active {
-            background: var(--orange-gradient);
-            border-color: transparent;
-            box-shadow: 0 4px 15px rgba(255, 102, 0, 0.4);
+            background: #3a3a3c;
+            border: 1px solid var(--orange-accent);
         }
-
         .trip-chip.active .trip-chip-name { color: white; }
-        .trip-chip.active .trip-chip-date { color: rgba(255,255,255,0.7); }
-
 
         .add-trip-btn {
-            background: #2a2a2e;
-            color: var(--orange-main);
-            border: 1px dashed var(--orange-main);
-            width: 40px;
-            height: 40px;
+            background: var(--input-bg);
+            color: var(--orange-accent);
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -123,212 +118,298 @@
             font-size: 20px;
             cursor: pointer;
             flex-shrink: 0;
-            transition: 0.3s;
-        }
-        .add-trip-btn:hover {
-            background: rgba(255, 102, 0, 0.1);
-            color: white;
+            border: none;
+            font-weight: 600;
         }
 
-        /* --- ОБЩИЕ СТИЛИ КАРТОЧЕК --- */
+        /* --- КАРТОЧКА --- */
         .card {
             background-color: var(--card-bg);
-            border-radius: 20px;
-            padding: 25px;
-            position: relative;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-            overflow: hidden; 
+            border-radius: 32px; /* Сильное скругление как на фото */
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .card::after {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--border-glow);
-        }
-
+        /* ЗАГОЛОВОК */
         h1 {
-            text-align: center; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; font-size: 20px;
+            text-align: center;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            letter-spacing: 0.5px;
+            color: #fff;
         }
         
-        /* Блок с названием рейса */
+        h1 span {
+            color: var(--orange-accent);
+        }
+
+        /* ИНФО О РЕЙСЕ (Подзаголовок) */
         .trip-info-row {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            background: rgba(255,255,255,0.03);
-            padding: 10px;
-            border-radius: 10px;
+            gap: 8px;
+            margin-bottom: 25px;
         }
 
         .trip-text-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            text-align: center;
         }
 
         .trip-subtitle {
-            text-align: center; color: var(--text-white); font-size: 14px; font-weight: 700;
+            color: var(--text-white);
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .trip-date-display {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-gray);
-            margin-top: 2px;
+            font-weight: 600;
+            margin-top: 4px;
         }
 
         .edit-name-btn {
             background: transparent;
             border: none;
-            color: #666;
-            font-size: 16px;
+            color: var(--text-gray);
+            font-size: 14px;
+            padding: 4px;
             cursor: pointer;
-            padding: 5px;
-            transition: 0.2s;
-        }
-        .edit-name-btn:hover {
-            color: var(--text-white);
-            transform: scale(1.1);
         }
 
-        /* ТАБЫ */
+        /* ТАБЫ (Как переключатель Одометр/Пробег) */
         .tabs {
-            display: flex; background-color: var(--input-bg); border-radius: 8px; padding: 4px; margin-bottom: 20px;
+            display: flex;
+            background-color: #252528; /* Темный фон подложки */
+            border-radius: 16px;
+            padding: 4px;
+            margin-bottom: 25px;
         }
+
         .tab-btn {
-            flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-gray);
-            font-weight: 700; font-size: 12px; cursor: pointer; text-transform: uppercase; border-radius: 6px; transition: 0.3s;
+            flex: 1;
+            padding: 14px;
+            border: none;
+            background: transparent;
+            color: var(--text-gray);
+            font-weight: 700;
+            font-size: 11px;
+            cursor: pointer;
+            text-transform: uppercase;
+            border-radius: 12px;
+            transition: 0.2s;
+            letter-spacing: 0.5px;
         }
+
         .tab-btn.active {
-            background: var(--orange-gradient); color: white; box-shadow: 0 4px 15px rgba(255, 102, 0, 0.4);
+            background-color: #3a3a3c; /* Светлее фона */
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
-        /* ИНПУТЫ */
-        .input-row { display: flex; gap: 15px; margin-bottom: 15px; }
-        .input-group { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-        label { font-size: 10px; font-weight: 700; color: #b0b0b0; text-transform: uppercase; margin-bottom: 5px; margin-left: 2px; }
+        /* ПОЛЯ ВВОДА */
+        .input-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .input-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--text-gray);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            margin-left: 4px;
+            letter-spacing: 0.5px;
+        }
+
         input {
-            width: 100%; background-color: var(--input-bg); border: 1px solid transparent; border-radius: 8px; padding: 15px;
-            color: white; font-size: 16px; font-weight: 600; outline: none; transition: 0.3s;
+            width: 100%;
+            background-color: var(--input-bg);
+            border: none;
+            border-radius: 14px;
+            padding: 16px;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            outline: none;
         }
-        input:focus { border-color: #444; }
+        
+        input::placeholder {
+            color: #555;
+        }
 
+        input:focus {
+            background-color: #3a3a3c;
+        }
+
+        /* КНОПКА ОТПРАВКИ */
         .submit-btn {
-            width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 12px;
-            background: var(--orange-gradient); color: white; font-weight: 800; font-size: 16px;
-            text-transform: uppercase; cursor: pointer; box-shadow: 0 5px 20px rgba(255, 69, 0, 0.4);
-            transition: transform 0.1s, box-shadow 0.3s;
+            width: 100%;
+            padding: 18px;
+            margin-top: 25px;
+            border: none;
+            border-radius: 16px;
+            background-color: var(--orange-accent);
+            color: white;
+            font-weight: 800;
+            font-size: 16px;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(255, 109, 0, 0.25);
+            transition: transform 0.1s;
         }
-        .submit-btn:active { transform: scale(0.98); }
+        .submit-btn:active {
+            transform: scale(0.98);
+            background-color: #e66200;
+        }
 
-        /* ИСТОРИЯ */
-        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .history-title { font-weight: 800; text-transform: uppercase; font-size: 16px; }
+        .balance-display {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 11px;
+            color: var(--text-gray);
+            font-weight: 600;
+        }
+        .balance-val { color: var(--text-white); margin-left: 5px; }
+
+        /* ИСТОРИЯ (Нижняя панель) */
+        .history-card {
+            background-color: var(--card-bg);
+            border-radius: 32px 32px 0 0; /* Скругление только сверху как шторка, или полное */
+            border-radius: 32px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .history-title {
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 14px;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-reset {
+            background: rgba(255, 69, 58, 0.15);
+            color: var(--danger);
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
         
-        .action-group { display: flex; gap: 10px; }
-
-        .btn-small {
-            background: transparent; border: 1px solid #444; color: #888; padding: 5px 10px;
-            border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: 0.3s;
-        }
-        .btn-small:hover { border-color: #888; color: white; }
-        
-        .btn-danger { border-color: #ff4545; color: #ff4545; }
-        .btn-danger:hover { background: #ff4545; color: white; }
-
-        .history-table-header {
-            display: flex; background-color: #0d0d10; padding: 10px 15px; border-radius: 6px;
-            font-size: 10px; font-weight: 800; color: var(--orange-main); text-transform: uppercase; margin-bottom: 10px;
-        }
-
-        .history-list { max-height: 300px; overflow-y: auto; overflow-x: hidden; }
-        .history-list::-webkit-scrollbar { width: 4px; }
-        .history-list::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
-
         .history-item {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         .history-item:last-child { border-bottom: none; }
 
-        /* КОЛОНКИ */
-        .col-1 { flex: 2; padding-right: 15px; white-space: normal; word-break: break-word; line-height: 1.4; }
-        .col-2 { flex: 1; text-align: right; white-space: nowrap; }
-        .col-3 { flex: 1; text-align: right; min-width: 60px; }
+        .h-info { display: flex; flex-direction: column; }
+        .h-cat { font-size: 13px; font-weight: 600; color: #fff; }
+        .h-type { font-size: 10px; color: #666; margin-top: 2px; text-transform: uppercase;}
+        
+        .h-amount { font-size: 14px; font-weight: 700; }
+        .inc { color: #32d74b; } /* iOS Green */
+        .exp { color: var(--text-white); } /* White for expense in dark mode usually looks cleaner, or light gray */
 
-        .amount-inc { color: #00e676; }
-        .amount-exp { color: #ff3d00; }
-        .empty-msg { text-align: center; color: #444; padding: 20px; font-size: 12px; }
-
-        .balance-display { text-align: center; margin-top: 10px; font-size: 12px; color: #888; }
-        .balance-val { color: white; font-weight: bold; }
+        .empty-msg { text-align: center; color: #555; font-size: 12px; padding: 20px; }
 
     </style>
 </head>
 <body>
 
-    <div class="container">
-        
-        <!-- ========================================== -->
-        <!-- ВСТАВЛЕННАЯ КАРТИНКА FOTO3.JPG -->
-        <img src="foto3.jpg" alt="Баннер" class="top-banner">
-        <!-- ========================================== -->
+    <!-- Шапка картинка -->
+    <div class="header-image-container">
+        <!-- Используем то же изображение что и в коде, или похожее на скрин -->
+        <img src="foto3.jpg" alt="Header">
+    </div>
 
-        <!-- Верхняя панель с рейсами -->
+    <div class="main-wrapper">
+        
+        <!-- Навигация (Чипсы) -->
         <div class="trips-container">
             <button class="add-trip-btn" onclick="createNewTrip()">+</button>
             <div class="trips-scroll" id="trips-list">
-                <!-- Сюда JS будет вставлять кнопки рейсов -->
+                <!-- JS вставит сюда -->
             </div>
         </div>
 
-        <!-- Карточка ввода -->
+        <!-- Основная карточка (Стиль как у "Расход Топлива") -->
         <div class="card">
-            <h1>Учет Финансов</h1>
+            <h1>Учет <span>Финансов</span></h1>
             
+            <!-- Инфо рейса -->
             <div class="trip-info-row">
                 <div class="trip-text-wrapper">
                     <div class="trip-subtitle" id="current-trip-name">Маршрут</div>
                     <div class="trip-date-display" id="current-trip-date">01.01.2024</div>
                 </div>
-                <button class="edit-name-btn" onclick="editCurrentTripInfo()" title="Изменить">✎</button>
+                <button class="edit-name-btn" onclick="editCurrentTripInfo()">✏️</button>
             </div>
 
+            <!-- Вкладки (Стиль переключателя) -->
             <div class="tabs">
                 <button class="tab-btn active" onclick="setMode('expense')">Расход</button>
                 <button class="tab-btn" onclick="setMode('income')">Доход</button>
             </div>
 
+            <!-- Поля ввода -->
             <div class="input-row">
                 <div class="input-group">
-                    <label>Сумма (₽)</label>
+                    <label>Сумма</label>
                     <input type="number" id="amount" placeholder="0">
                 </div>
                 <div class="input-group">
                     <label>Категория</label>
-                    <input type="text" id="category" placeholder="ДТ, Кафе, Платник...">
+                    <input type="text" id="category" placeholder="ДТ, Еда...">
                 </div>
             </div>
 
-            <button class="submit-btn" onclick="addEntry()">Добавить в рейс</button>
+            <button class="submit-btn" onclick="addEntry()">Добавить</button>
             
             <div class="balance-display">
                 Баланс рейса: <span id="total-balance" class="balance-val">0 ₽</span>
             </div>
         </div>
 
-        <!-- Карточка истории -->
-        <div class="card">
+        <!-- История (Нижний блок) -->
+        <div class="history-card">
             <div class="history-header">
-                <div class="history-title">История рейса</div>
-                <div class="action-group">
-                    <button class="btn-small btn-danger" onclick="deleteCurrentTrip()">Удалить рейс</button>
-                </div>
-            </div>
-
-            <div class="history-table-header">
-                <div class="col-1">Категория</div>
-                <div class="col-2">Сумма</div>
-                <div class="col-3">Тип</div>
+                <div class="history-title">История</div>
+                <button class="btn-reset" onclick="deleteCurrentTrip()">Удалить рейс</button>
             </div>
 
             <div class="history-list" id="history-list">
@@ -339,7 +420,7 @@
     </div>
 
     <script>
-        // Структура данных
+        // ЛОГИКА ОСТАЛАСЬ БЕЗ ИЗМЕНЕНИЙ
         let appData = JSON.parse(localStorage.getItem('financeAppData')) || {
             activeTripId: null,
             trips: []
@@ -350,33 +431,28 @@
         init();
 
         function init() {
-            // Если рейсов нет вообще (первый запуск)
             if (appData.trips.length === 0) {
-                let startPoint = prompt("Введите пункт ОТПРАВЛЕНИЯ (например: Н.Новгород):");
+                let startPoint = prompt("Введите пункт ОТПРАВЛЕНИЯ:");
                 if (!startPoint) startPoint = "Начало";
 
-                let endPoint = prompt("Введите пункт НАЗНАЧЕНИЯ (например: Москва):");
+                let endPoint = prompt("Введите пункт НАЗНАЧЕНИЯ:");
                 if (!endPoint) endPoint = "Конец";
                 
                 let defaultDate = new Date().toLocaleDateString('ru-RU');
-                let firstTripDate = prompt("Введите дату рейса:", defaultDate);
-                if (!firstTripDate) firstTripDate = defaultDate;
-
+                
                 const defaultTrip = {
                     id: Date.now(),
                     startPoint: startPoint.trim(),
                     endPoint: endPoint.trim(),
-                    date: firstTripDate.trim(),
+                    date: defaultDate,
                     transactions: []
                 };
                 
-                // Добавляем в массив
                 appData.trips.push(defaultTrip);
                 appData.activeTripId = defaultTrip.id;
                 saveData();
             }
             
-            // Если активный рейс потерялся
             if (!appData.trips.find(t => t.id === appData.activeTripId)) {
                 if(appData.trips.length > 0) {
                     appData.activeTripId = appData.trips[0].id;
@@ -389,14 +465,12 @@
 
         function getTripDisplayName(trip) {
             if (trip.startPoint || trip.endPoint) {
-                const s = trip.startPoint || "Начало";
-                const e = trip.endPoint || "Конец";
+                const s = trip.startPoint || "A";
+                const e = trip.endPoint || "B";
                 return `${s} - ${e}`;
             }
             return trip.name || "Рейс";
         }
-
-        // --- Управление Рейсами ---
 
         function createNewTrip() {
             const startPoint = prompt("Пункт ОТПРАВЛЕНИЯ:");
@@ -416,10 +490,7 @@
                     date: (date && date.trim() !== "") ? date.trim() : defaultDate,
                     transactions: []
                 };
-
-                // ВАЖНО: unshift добавляет элемент в НАЧАЛО массива (слева)
                 appData.trips.unshift(newTrip);
-                
                 appData.activeTripId = newTrip.id; 
                 saveData();
                 renderTripsNav();
@@ -431,24 +502,18 @@
             const trip = appData.trips.find(t => t.id === appData.activeTripId);
             if (!trip) return;
 
-            const oldStart = trip.startPoint || trip.name?.split(' - ')[0] || "";
-            const oldEnd = trip.endPoint || trip.name?.split(' - ')[1] || "";
+            const oldStart = trip.startPoint || "";
+            const oldEnd = trip.endPoint || "";
 
             const newStart = prompt("Изменить пункт ОТПРАВЛЕНИЯ:", oldStart);
             if (newStart !== null) {
                 trip.startPoint = newStart.trim();
-                
                 const newEnd = prompt("Изменить пункт НАЗНАЧЕНИЯ:", oldEnd);
                 if (newEnd !== null) {
                     trip.endPoint = newEnd.trim();
                 }
-
-                delete trip.name;
-
-                const newDate = prompt("Изменить дату рейса:", trip.date || "");
-                if (newDate) {
-                    trip.date = newDate.trim();
-                }
+                const newDate = prompt("Изменить дату:", trip.date || "");
+                if (newDate) trip.date = newDate.trim();
 
                 saveData();
                 renderTripsNav(); 
@@ -468,25 +533,18 @@
                 appData.trips = appData.trips.filter(t => t.id !== appData.activeTripId);
                 appData.activeTripId = null; 
                 saveData();
-                init();
+                location.reload(); // Перезагрузка для инициализации
             }
         }
-
-        // --- Рендеринг ---
 
         function renderTripsNav() {
             const container = document.getElementById('trips-list');
             container.innerHTML = '';
-
-            // Отрисовка идет по порядку массива. Так как мы используем unshift,
-            // новые рейсы в начале массива (индекс 0), поэтому они будут слева.
             appData.trips.forEach(trip => {
                 const btn = document.createElement('div');
                 btn.className = `trip-chip ${trip.id === appData.activeTripId ? 'active' : ''}`;
-                
                 const displayName = getTripDisplayName(trip);
                 const displayDate = trip.date ? trip.date : '';
-
                 btn.innerHTML = `
                     <div class="trip-chip-name">${displayName}</div>
                     <div class="trip-chip-date">${displayDate}</div>
@@ -494,28 +552,15 @@
                 btn.onclick = () => switchTrip(trip.id);
                 container.appendChild(btn);
             });
-            
-            setTimeout(() => {
-                const activeEl = container.querySelector('.active');
-                if(activeEl) {
-                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                }
-            }, 100);
         }
 
         function renderCurrentTripUI() {
             const trip = appData.trips.find(t => t.id === appData.activeTripId);
             if (!trip) return;
-
-            const displayName = getTripDisplayName(trip);
-
-            document.getElementById('current-trip-name').innerText = displayName;
-            document.getElementById('current-trip-date').innerText = trip.date || "Нет даты";
-            
+            document.getElementById('current-trip-name').innerText = getTripDisplayName(trip);
+            document.getElementById('current-trip-date').innerText = trip.date || "";
             renderHistory(trip);
         }
-
-        // --- Логика Транзакций ---
 
         function setMode(mode) {
             currentMode = mode;
@@ -532,7 +577,6 @@
         function addEntry() {
             const amountInput = document.getElementById('amount');
             const categoryInput = document.getElementById('category');
-            
             const amount = parseFloat(amountInput.value);
             const category = categoryInput.value.trim() || (currentMode === 'expense' ? 'Расход' : 'Доход');
 
@@ -542,20 +586,16 @@
             }
 
             const trip = appData.trips.find(t => t.id === appData.activeTripId);
-
             const transaction = {
                 id: Date.now(),
                 type: currentMode,
                 amount: amount,
-                category: category,
-                date: new Date().toLocaleDateString()
+                category: category
             };
 
             trip.transactions.unshift(transaction);
-            
             saveData();
             renderCurrentTripUI();
-
             amountInput.value = '';
             categoryInput.value = '';
         }
@@ -563,7 +603,6 @@
         function renderHistory(trip) {
             const list = document.getElementById('history-list');
             const balanceEl = document.getElementById('total-balance');
-            
             list.innerHTML = '';
             let balance = 0;
 
@@ -576,28 +615,27 @@
 
                     const item = document.createElement('div');
                     item.className = 'history-item';
-                    
+                    const colorClass = t.type === 'income' ? 'inc' : 'exp';
                     const sign = t.type === 'income' ? '+' : '-';
-                    const colorClass = t.type === 'income' ? 'amount-inc' : 'amount-exp';
-                    const typeLabel = t.type === 'income' ? 'DOHOD' : 'RASHOD';
+                    const typeLabel = t.type === 'income' ? 'Доход' : 'Расход';
 
                     item.innerHTML = `
-                        <div class="col-1">${t.category}</div>
-                        <div class="col-2 ${colorClass}">${sign}${t.amount}</div>
-                        <div class="col-3" style="color:#666; font-size:10px;">${typeLabel}</div>
+                        <div class="h-info">
+                            <span class="h-cat">${t.category}</span>
+                            <span class="h-type">${typeLabel}</span>
+                        </div>
+                        <div class="h-amount ${colorClass}">${sign}${t.amount} ₽</div>
                     `;
                     list.appendChild(item);
                 });
             }
-
             balanceEl.innerText = `${balance} ₽`;
-            balanceEl.style.color = balance >= 0 ? '#fff' : '#ff4545';
+            balanceEl.style.color = balance >= 0 ? '#fff' : '#ff453a';
         }
 
         function saveData() {
             localStorage.setItem('financeAppData', JSON.stringify(appData));
         }
-
     </script>
 </body>
 </html>

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Учет по Рейсам</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #121214;
+            --card-bg: #1e1e22;
+            --input-bg: #151518;
+            --orange-main: #ff6600;
+            --orange-gradient: linear-gradient(90deg, #ff8800, #ff4500);
+            --text-white: #ffffff;
+            --text-gray: #888888;
+            --border-glow: linear-gradient(90deg, #7b2cbf, #ff6600);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1000&auto=format&fit=crop'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: var(--text-white);
+        }
+
+        body::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(18, 18, 20, 0.9); backdrop-filter: blur(8px); z-index: -1;
+        }
+
+        .container {
+            width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 20px;
+        }
+
+        /* --- НАВИГАЦИЯ ПО РЕЙСАМ --- */
+        .trips-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .trips-scroll {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            flex: 1;
+            scrollbar-width: none; 
+            /* Изменили направление, чтобы элементы шли слева направо стандартно, 
+               но так как мы добавляем новые в начало массива, они будут слева */
+        }
+        .trips-scroll::-webkit-scrollbar { display: none; }
+
+        .trip-chip {
+            background: var(--card-bg);
+            border: 1px solid #333;
+            padding: 8px 15px;
+            border-radius: 15px;
+            min-width: 100px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            /* Чтобы они не сжимались */
+            flex-shrink: 0; 
+        }
+
+        .trip-chip-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: #ccc;
+            white-space: nowrap;
+        }
+
+        .trip-chip-date {
+            font-size: 9px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .trip-chip.active {
+            background: var(--orange-gradient);
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(255, 102, 0, 0.4);
+        }
+
+        .trip-chip.active .trip-chip-name { color: white; }
+        .trip-chip.active .trip-chip-date { color: rgba(255,255,255,0.7); }
+
+
+        .add-trip-btn {
+            background: #2a2a2e;
+            color: var(--orange-main);
+            border: 1px dashed var(--orange-main);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: 0.3s;
+        }
+        .add-trip-btn:hover {
+            background: rgba(255, 102, 0, 0.1);
+            color: white;
+        }
+
+        /* --- ОБЩИЕ СТИЛИ КАРТОЧЕК --- */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            overflow: hidden; 
+        }
+
+        .card::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--border-glow);
+        }
+
+        h1 {
+            text-align: center; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; font-size: 20px;
+        }
+        
+        /* Блок с названием рейса */
+        .trip-info-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.03);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .trip-text-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .trip-subtitle {
+            text-align: center; color: var(--text-white); font-size: 14px; font-weight: 700;
+        }
+        
+        .trip-date-display {
+            font-size: 11px;
+            color: var(--text-gray);
+            margin-top: 2px;
+        }
+
+        .edit-name-btn {
+            background: transparent;
+            border: none;
+            color: #666;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 5px;
+            transition: 0.2s;
+        }
+        .edit-name-btn:hover {
+            color: var(--text-white);
+            transform: scale(1.1);
+        }
+
+        /* ТАБЫ */
+        .tabs {
+            display: flex; background-color: var(--input-bg); border-radius: 8px; padding: 4px; margin-bottom: 20px;
+        }
+        .tab-btn {
+            flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-gray);
+            font-weight: 700; font-size: 12px; cursor: pointer; text-transform: uppercase; border-radius: 6px; transition: 0.3s;
+        }
+        .tab-btn.active {
+            background: var(--orange-gradient); color: white; box-shadow: 0 4px 15px rgba(255, 102, 0, 0.4);
+        }
+
+        /* ИНПУТЫ */
+        .input-row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .input-group { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        label { font-size: 10px; font-weight: 700; color: #b0b0b0; text-transform: uppercase; margin-bottom: 5px; margin-left: 2px; }
+        input {
+            width: 100%; background-color: var(--input-bg); border: 1px solid transparent; border-radius: 8px; padding: 15px;
+            color: white; font-size: 16px; font-weight: 600; outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: #444; }
+
+        .submit-btn {
+            width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 12px;
+            background: var(--orange-gradient); color: white; font-weight: 800; font-size: 16px;
+            text-transform: uppercase; cursor: pointer; box-shadow: 0 5px 20px rgba(255, 69, 0, 0.4);
+            transition: transform 0.1s, box-shadow 0.3s;
+        }
+        .submit-btn:active { transform: scale(0.98); }
+
+        /* ИСТОРИЯ */
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .history-title { font-weight: 800; text-transform: uppercase; font-size: 16px; }
+        
+        .action-group { display: flex; gap: 10px; }
+
+        .btn-small {
+            background: transparent; border: 1px solid #444; color: #888; padding: 5px 10px;
+            border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: 0.3s;
+        }
+        .btn-small:hover { border-color: #888; color: white; }
+        
+        .btn-danger { border-color: #ff4545; color: #ff4545; }
+        .btn-danger:hover { background: #ff4545; color: white; }
+
+        .history-table-header {
+            display: flex; background-color: #0d0d10; padding: 10px 15px; border-radius: 6px;
+            font-size: 10px; font-weight: 800; color: var(--orange-main); text-transform: uppercase; margin-bottom: 10px;
+        }
+
+        .history-list { max-height: 300px; overflow-y: auto; overflow-x: hidden; }
+        .history-list::-webkit-scrollbar { width: 4px; }
+        .history-list::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+        .history-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px;
+        }
+        .history-item:last-child { border-bottom: none; }
+
+        /* КОЛОНКИ */
+        .col-1 { flex: 2; padding-right: 15px; white-space: normal; word-break: break-word; line-height: 1.4; }
+        .col-2 { flex: 1; text-align: right; white-space: nowrap; }
+        .col-3 { flex: 1; text-align: right; min-width: 60px; }
+
+        .amount-inc { color: #00e676; }
+        .amount-exp { color: #ff3d00; }
+        .empty-msg { text-align: center; color: #444; padding: 20px; font-size: 12px; }
+
+        .balance-display { text-align: center; margin-top: 10px; font-size: 12px; color: #888; }
+        .balance-val { color: white; font-weight: bold; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- Верхняя панель с рейсами -->
+        <!-- ТЕПЕРЬ КНОПКА ПЛЮС СЛЕВА, ЧТОБЫ УДОБНЕЕ ДОБАВЛЯТЬ В НАЧАЛО -->
+        <div class="trips-container">
+            <button class="add-trip-btn" onclick="createNewTrip()">+</button>
+            <div class="trips-scroll" id="trips-list">
+                <!-- Сюда JS будет вставлять кнопки рейсов -->
+            </div>
+        </div>
+
+        <!-- Карточка ввода -->
+        <div class="card">
+            <h1>Учет Финансов</h1>
+            
+            <div class="trip-info-row">
+                <div class="trip-text-wrapper">
+                    <div class="trip-subtitle" id="current-trip-name">Маршрут</div>
+                    <div class="trip-date-display" id="current-trip-date">01.01.2024</div>
+                </div>
+                <button class="edit-name-btn" onclick="editCurrentTripInfo()" title="Изменить">✎</button>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="setMode('expense')">Расход</button>
+                <button class="tab-btn" onclick="setMode('income')">Доход</button>
+            </div>
+
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Сумма (₽)</label>
+                    <input type="number" id="amount" placeholder="0">
+                </div>
+                <div class="input-group">
+                    <label>Категория</label>
+                    <input type="text" id="category" placeholder="ДТ, Кафе, Платник...">
+                </div>
+            </div>
+
+            <button class="submit-btn" onclick="addEntry()">Добавить в рейс</button>
+            
+            <div class="balance-display">
+                Баланс рейса: <span id="total-balance" class="balance-val">0 ₽</span>
+            </div>
+        </div>
+
+        <!-- Карточка истории -->
+        <div class="card">
+            <div class="history-header">
+                <div class="history-title">История рейса</div>
+                <div class="action-group">
+                    <button class="btn-small btn-danger" onclick="deleteCurrentTrip()">Удалить рейс</button>
+                </div>
+            </div>
+
+            <div class="history-table-header">
+                <div class="col-1">Категория</div>
+                <div class="col-2">Сумма</div>
+                <div class="col-3">Тип</div>
+            </div>
+
+            <div class="history-list" id="history-list">
+                <div class="empty-msg">Нет данных</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Структура данных
+        let appData = JSON.parse(localStorage.getItem('financeAppData')) || {
+            activeTripId: null,
+            trips: []
+        };
+
+        let currentMode = 'expense';
+
+        init();
+
+        function init() {
+            // Если рейсов нет вообще (первый запуск)
+            if (appData.trips.length === 0) {
+                let startPoint = prompt("Введите пункт ОТПРАВЛЕНИЯ (например: Н.Новгород):");
+                if (!startPoint) startPoint = "Начало";
+
+                let endPoint = prompt("Введите пункт НАЗНАЧЕНИЯ (например: Москва):");
+                if (!endPoint) endPoint = "Конец";
+                
+                let defaultDate = new Date().toLocaleDateString('ru-RU');
+                let firstTripDate = prompt("Введите дату рейса:", defaultDate);
+                if (!firstTripDate) firstTripDate = defaultDate;
+
+                const defaultTrip = {
+                    id: Date.now(),
+                    startPoint: startPoint.trim(),
+                    endPoint: endPoint.trim(),
+                    date: firstTripDate.trim(),
+                    transactions: []
+                };
+                
+                // Добавляем в массив
+                appData.trips.push(defaultTrip);
+                appData.activeTripId = defaultTrip.id;
+                saveData();
+            }
+            
+            // Если активный рейс потерялся
+            if (!appData.trips.find(t => t.id === appData.activeTripId)) {
+                if(appData.trips.length > 0) {
+                    appData.activeTripId = appData.trips[0].id;
+                }
+            }
+
+            renderTripsNav();
+            renderCurrentTripUI();
+        }
+
+        function getTripDisplayName(trip) {
+            if (trip.startPoint || trip.endPoint) {
+                const s = trip.startPoint || "Начало";
+                const e = trip.endPoint || "Конец";
+                return `${s} - ${e}`;
+            }
+            return trip.name || "Рейс";
+        }
+
+        // --- Управление Рейсами ---
+
+        function createNewTrip() {
+            const startPoint = prompt("Пункт ОТПРАВЛЕНИЯ:");
+            if (startPoint === null) return; 
+
+            const endPoint = prompt("Пункт НАЗНАЧЕНИЯ:");
+            if (endPoint === null) return;
+
+            let defaultDate = new Date().toLocaleDateString('ru-RU');
+            const date = prompt("Дата рейса:", defaultDate);
+
+            if (startPoint || endPoint) {
+                const newTrip = {
+                    id: Date.now(),
+                    startPoint: startPoint ? startPoint.trim() : "А",
+                    endPoint: endPoint ? endPoint.trim() : "Б",
+                    date: (date && date.trim() !== "") ? date.trim() : defaultDate,
+                    transactions: []
+                };
+
+                // ВАЖНО: unshift добавляет элемент в НАЧАЛО массива (слева)
+                appData.trips.unshift(newTrip);
+                
+                appData.activeTripId = newTrip.id; 
+                saveData();
+                renderTripsNav();
+                renderCurrentTripUI();
+            }
+        }
+
+        function editCurrentTripInfo() {
+            const trip = appData.trips.find(t => t.id === appData.activeTripId);
+            if (!trip) return;
+
+            const oldStart = trip.startPoint || trip.name?.split(' - ')[0] || "";
+            const oldEnd = trip.endPoint || trip.name?.split(' - ')[1] || "";
+
+            const newStart = prompt("Изменить пункт ОТПРАВЛЕНИЯ:", oldStart);
+            if (newStart !== null) {
+                trip.startPoint = newStart.trim();
+                
+                const newEnd = prompt("Изменить пункт НАЗНАЧЕНИЯ:", oldEnd);
+                if (newEnd !== null) {
+                    trip.endPoint = newEnd.trim();
+                }
+
+                delete trip.name;
+
+                const newDate = prompt("Изменить дату рейса:", trip.date || "");
+                if (newDate) {
+                    trip.date = newDate.trim();
+                }
+
+                saveData();
+                renderTripsNav(); 
+                renderCurrentTripUI(); 
+            }
+        }
+
+        function switchTrip(id) {
+            appData.activeTripId = id;
+            saveData();
+            renderTripsNav();
+            renderCurrentTripUI();
+        }
+
+        function deleteCurrentTrip() {
+            if (confirm("Удалить текущий рейс и всю его историю?")) {
+                appData.trips = appData.trips.filter(t => t.id !== appData.activeTripId);
+                appData.activeTripId = null; 
+                saveData();
+                init();
+            }
+        }
+
+        // --- Рендеринг ---
+
+        function renderTripsNav() {
+            const container = document.getElementById('trips-list');
+            container.innerHTML = '';
+
+            // Отрисовка идет по порядку массива. Так как мы используем unshift,
+            // новые рейсы в начале массива (индекс 0), поэтому они будут слева.
+            appData.trips.forEach(trip => {
+                const btn = document.createElement('div');
+                btn.className = `trip-chip ${trip.id === appData.activeTripId ? 'active' : ''}`;
+                
+                const displayName = getTripDisplayName(trip);
+                const displayDate = trip.date ? trip.date : '';
+
+                btn.innerHTML = `
+                    <div class="trip-chip-name">${displayName}</div>
+                    <div class="trip-chip-date">${displayDate}</div>
+                `;
+                btn.onclick = () => switchTrip(trip.id);
+                container.appendChild(btn);
+            });
+            
+            setTimeout(() => {
+                const activeEl = container.querySelector('.active');
+                if(activeEl) {
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            }, 100);
+        }
+
+        function renderCurrentTripUI() {
+            const trip = appData.trips.find(t => t.id === appData.activeTripId);
+            if (!trip) return;
+
+            const displayName = getTripDisplayName(trip);
+
+            document.getElementById('current-trip-name').innerText = displayName;
+            document.getElementById('current-trip-date').innerText = trip.date || "Нет даты";
+            
+            renderHistory(trip);
+        }
+
+        // --- Логика Транзакций ---
+
+        function setMode(mode) {
+            currentMode = mode;
+            const buttons = document.querySelectorAll('.tab-btn');
+            if (mode === 'expense') {
+                buttons[0].classList.add('active');
+                buttons[1].classList.remove('active');
+            } else {
+                buttons[1].classList.add('active');
+                buttons[0].classList.remove('active');
+            }
+        }
+
+        function addEntry() {
+            const amountInput = document.getElementById('amount');
+            const categoryInput = document.getElementById('category');
+            
+            const amount = parseFloat(amountInput.value);
+            const category = categoryInput.value.trim() || (currentMode === 'expense' ? 'Расход' : 'Доход');
+
+            if (!amount || amount <= 0) {
+                alert('Введите корректную сумму');
+                return;
+            }
+
+            const trip = appData.trips.find(t => t.id === appData.activeTripId);
+
+            const transaction = {
+                id: Date.now(),
+                type: currentMode,
+                amount: amount,
+                category: category,
+                date: new Date().toLocaleDateString()
+            };
+
+            trip.transactions.unshift(transaction);
+            
+            saveData();
+            renderCurrentTripUI();
+
+            amountInput.value = '';
+            categoryInput.value = '';
+        }
+
+        function renderHistory(trip) {
+            const list = document.getElementById('history-list');
+            const balanceEl = document.getElementById('total-balance');
+            
+            list.innerHTML = '';
+            let balance = 0;
+
+            if (trip.transactions.length === 0) {
+                list.innerHTML = '<div class="empty-msg">В этом рейсе записей нет</div>';
+            } else {
+                trip.transactions.forEach(t => {
+                    if (t.type === 'income') balance += t.amount;
+                    else balance -= t.amount;
+
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    
+                    const sign = t.type === 'income' ? '+' : '-';
+                    const colorClass = t.type === 'income' ? 'amount-inc' : 'amount-exp';
+                    const typeLabel = t.type === 'income' ? 'DOHOD' : 'RASHOD';
+
+                    item.innerHTML = `
+                        <div class="col-1">${t.category}</div>
+                        <div class="col-2 ${colorClass}">${sign}${t.amount}</div>
+                        <div class="col-3" style="color:#666; font-size:10px;">${typeLabel}</div>
+                    `;
+                    list.appendChild(item);
+                });
+            }
+
+            balanceEl.innerText = `${balance} ₽`;
+            balanceEl.style.color = balance >= 0 ? '#fff' : '#ff4545';
+        }
+
+        function saveData() {
+            localStorage.setItem('financeAppData', JSON.stringify(appData));
+        }
+
+    </script>
+</body>
+</html>

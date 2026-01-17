@@ -5,36 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Бортовой Журнал</title>
     
-    <!-- Подключение VK Bridge (ОБЯЗАТЕЛЬНО ДЛЯ РАБОТЫ В VK) -->
+    <!-- Подключаем VK Bridge -->
     <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* --- БАЗОВЫЕ СТИЛИ --- */
+        /* Базовые настройки */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100%; width: 100%; overflow: hidden; }
         
         body {
             font-family: 'Montserrat', sans-serif;
             color: #ffffff;
-            
-            /* ФОН */
             background-image: url('foto2.jpg'); 
             background-size: cover; 
-            /* Прижимаем к низу, чтобы поднять девушку в центр экрана */
             background-position: center bottom;
             background-repeat: no-repeat;
             position: relative;
         }
 
-        /* Градиент: затемняем верх (для текста) и низ (для кнопок), середина прозрачная */
+        /* Затемнение */
         body::before {
             content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(to bottom, 
-                rgba(0,0,0,0.8) 0%,   
-                rgba(0,0,0,0.0) 30%,  
-                rgba(0,0,0,0.0) 60%,  
-                rgba(0,0,0,0.95) 100%);
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.0) 30%, rgba(0,0,0,0.0) 60%, rgba(0,0,0,0.95) 100%);
             z-index: 1; pointer-events: none;
         }
 
@@ -44,24 +37,14 @@
             padding: 40px 20px 40px 20px;
         }
 
-        /* --- ЗАГОЛОВОК --- */
+        /* Заголовок и кнопки */
         .header-section { text-align: center; margin-top: 15px; }
-        h1 { 
-            font-weight: 900; 
-            text-transform: uppercase; 
-            font-size: 30px; 
-            line-height: 1.1; 
-            margin: 0; 
-            text-shadow: 0 4px 15px rgba(0,0,0,1); 
-            letter-spacing: 1px; 
-        }
+        h1 { font-weight: 900; text-transform: uppercase; font-size: 30px; line-height: 1.1; margin: 0; text-shadow: 0 4px 15px rgba(0,0,0,1); letter-spacing: 1px; }
 
-        /* --- КНОПКИ --- */
         .bottom-section { width: 100%; max-width: 480px; margin: 0 auto; }
         
         .menu-btn {
             display: flex; align-items: center; justify-content: space-between;
-            /* Цвет фона карточки (#1A1B22) */
             background-color: #1A1B22; opacity: 0.96; 
             border: 1px solid rgba(255, 255, 255, 0.08); 
             box-shadow: 0 15px 35px rgba(0,0,0,0.6);
@@ -77,13 +60,12 @@
         
         .version { text-align: center; font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 10px; }
 
-        /* --- ЭКРАН БЛОКИРОВКИ (LOCK SCREEN) --- */
+        /* --- ЭКРАН БЛОКИРОВКИ --- */
         #lock-screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            /* Темный фон с размытием */
-            background: rgba(15, 16, 20, 0.98);
-            backdrop-filter: blur(15px);
+            background: rgba(15, 16, 20, 0.98); /* Почти черный фон */
+            backdrop-filter: blur(10px);
             z-index: 9999;
             display: flex;
             flex-direction: column;
@@ -91,16 +73,16 @@
             justify-content: center;
             padding: 30px;
             text-align: center;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.5s ease;
         }
 
-        .lock-icon { font-size: 50px; margin-bottom: 20px; }
-        .lock-title { font-size: 22px; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; color: #fff; }
-        .lock-desc { font-size: 14px; color: #aaa; margin-bottom: 30px; line-height: 1.6; max-width: 300px; }
+        .lock-icon { font-size: 60px; margin-bottom: 20px; }
+        .lock-title { font-size: 24px; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; color: #fff; }
+        .lock-desc { font-size: 15px; color: #bbb; margin-bottom: 30px; line-height: 1.5; max-width: 320px; }
         
         .btn-subscribe {
             background: linear-gradient(90deg, #ff8c00, #ff4500);
-            color: white; border: none; padding: 16px 30px;
+            color: white; border: none; padding: 18px 30px;
             border-radius: 12px; font-weight: 800; text-transform: uppercase;
             font-size: 14px; cursor: pointer; text-decoration: none;
             box-shadow: 0 10px 20px rgba(255, 69, 0, 0.3);
@@ -108,20 +90,18 @@
         }
         
         .btn-check {
-            background: transparent; border: 1px solid rgba(255,255,255,0.2);
-            color: #fff; padding: 12px 25px; border-radius: 10px;
-            font-size: 12px; font-weight: 600; cursor: pointer; text-transform: uppercase;
+            background: transparent; border: 1px solid rgba(255,255,255,0.3);
+            color: #fff; padding: 14px 25px; border-radius: 12px;
+            font-size: 13px; font-weight: 600; cursor: pointer; text-transform: uppercase;
             width: 100%; max-width: 280px;
         }
         .btn-check:active { background: rgba(255,255,255,0.1); }
 
-        /* Класс скрытия */
         .hidden { opacity: 0; pointer-events: none; }
     </style>
 </head>
 <body>
 
-    <!-- Градиент для иконок -->
     <svg width="0" height="0" style="position:absolute">
         <defs>
             <linearGradient id="brand-orange" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -131,29 +111,26 @@
         </defs>
     </svg>
 
-    <!-- === ЭКРАН БЛОКИРОВКИ === -->
+    <!-- ЭКРАН БЛОКИРОВКИ -->
     <div id="lock-screen">
         <div class="lock-icon">🔒</div>
-        <div class="lock-title">Доступ Ограничен</div>
+        <div class="lock-title">Доступ Закрыт</div>
         <div class="lock-desc">
-            Доступ к <b>Бортовому Журналу</b> открыт только для участников сообщества <b>Belov Production</b>.
+            Это закрытый клуб. <br>Вступите в сообщество <b>Belov Production</b>, чтобы получить доступ к инструментам.
         </div>
         
-        <!-- Кнопка подписки -->
-        <a href="https://vk.com/belovproductionclub" target="_blank" class="btn-subscribe">Подписаться</a>
+        <!-- Ссылка на группу -->
+        <a href="https://vk.com/club226893474" target="_blank" class="btn-subscribe">Вступить в группу</a>
         
         <!-- Кнопка проверки -->
-        <button class="btn-check" onclick="checkSubscription()">Я подписался</button>
+        <button class="btn-check" onclick="checkSubscription()">Я вступил</button>
     </div>
-    <!-- ======================== -->
 
     <div class="main-wrapper">
-        <!-- Заголовок -->
         <div class="header-section">
             <h1>БОРТОВОЙ <br><span style="color:#FF6B00">ЖУРНАЛ</span></h1>
         </div>
 
-        <!-- Кнопки меню -->
         <div class="bottom-section">
             <a href="fuel.html" class="menu-btn">
                 <div class="btn-text">
@@ -175,33 +152,34 @@
                 </svg>
             </a>
 
-            <div class="version">v2.2 Belov Production</div>
+            <div class="version">v2.4 Final</div>
         </div>
     </div>
 
-    <!-- === СКРИПТ ПРОВЕРКИ ПОДПИСКИ === -->
+    <!-- === СКРИПТ === -->
     <script>
-        const YOUR_APP_ID = 54423326; 
-        const GROUP_ID = 'belovproductionclub'; 
+        // ВАШИ ДАННЫЕ
+        const APP_ID = 54423326; 
+        const GROUP_ID = 226893474; // Ваш точный ID группы
 
         const lockScreen = document.getElementById('lock-screen');
 
-        // Инициализация VK Bridge
+        // 1. Инициализация VK Bridge
         vkBridge.send('VKWebAppInit');
 
         function checkSubscription() {
-            // 1. Получаем токен доступа
+            // 2. Получение токена (прав доступа)
             vkBridge.send("VKWebAppGetAuthToken", {
-                "app_id": YOUR_APP_ID, 
-                "scope": "groups"
+                "app_id": APP_ID, 
+                "scope": "groups" // Запрашиваем доступ к инфо о группах
             })
             .then(data => {
                 const token = data.access_token;
                 
-                // 2. Проверяем участие в группе
+                // 3. Запрос к API: "Является ли юзер участником группы?"
                 vkBridge.send("VKWebAppCallAPIMethod", {
                     "method": "groups.isMember",
-                    "request_id": "check_sub",
+                    "request_id": "check_membership",
                     "params": {
                         "group_id": GROUP_ID,
                         "v": "5.131",
@@ -209,23 +187,24 @@
                     }
                 })
                 .then(response => {
-                    // Если response.response == 1, значит подписан
+                    // response.response = 1 (участник) или 0 (нет)
                     if (response.response == 1) {
-                        lockScreen.classList.add('hidden'); // Скрываем замок
+                        lockScreen.classList.add('hidden'); // Убираем замок
                     } else {
-                        // Если 0 - не подписан, показываем уведомление
+                        // Показываем красивое уведомление ВК
                         vkBridge.send("VKWebAppShowNativeAlert", {
                             "title": "Доступ закрыт",
-                            "message": "Пожалуйста, подпишитесь на группу Belov Production, чтобы продолжить."
+                            "message": "Вы не вступили в группу. Пожалуйста, подпишитесь на Belov Production."
                         });
                     }
                 })
                 .catch(error => {
-                    console.error("Ошибка API:", error);
+                    alert("Ошибка API: " + JSON.stringify(error));
                 });
             })
             .catch(error => {
-                console.error("Ошибка авторизации:", error);
+                alert("Ошибка авторизации. Разрешите доступ приложению.");
+                console.log(error);
             });
         }
     </script>
